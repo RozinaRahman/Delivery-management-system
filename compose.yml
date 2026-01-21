@@ -1,0 +1,17 @@
+services:
+  dpdms_database:
+    image: mysql:8.0
+    container_name: dpdms_database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dpdms
+      MYSQL_USER: dpdms
+      MYSQL_PASSWORD: dpdms
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
