@@ -4,7 +4,7 @@ services:
     container_name: dpdms_database
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: dpdms
       MYSQL_DATABASE: dpdms
       MYSQL_USER: dpdms
       MYSQL_PASSWORD: dpdms
