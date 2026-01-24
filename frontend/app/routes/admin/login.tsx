@@ -83,10 +83,15 @@ export const action: ActionFunction = async ({ request }) => {
             formError: 'Something is wrong! Please try again.',
         })
     }
+    // Find the admin role from the roles array
+    const adminRole = (user as LoginResponse).user.roles.find(
+        (r) => r.role.name === 'admin',
+    );
+    const roleName = adminRole?.role.name || 'admin';
     return createUserSession(
         (user as LoginResponse).user.id,
         (user as LoginResponse).access_token,
-        (user as LoginResponse).user.roles[0].role.name,
+        roleName,
         redirectTo,
     )
 }

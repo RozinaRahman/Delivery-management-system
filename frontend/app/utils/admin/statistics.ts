@@ -9,6 +9,9 @@ export const getAdminStatistics = async (
 ): Promise<AdminStatistics | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const res = await axios.get('/statistics/admin', {
             headers: {
                 Authorization: `Bearer ${access_token}`,

@@ -94,10 +94,15 @@ export const action: ActionFunction = async ({ request }) => {
             formError: 'Something is wrong! Please try again.',
         })
     }
+    // Find the packageHandler role from the roles array (pickupman or deliveryman)
+    const handlerRole = (user as LoginResponse).user.roles.find(
+        (r) => r.role.name === 'pickupman' || r.role.name === 'deliveryman',
+    );
+    const roleName = handlerRole?.role.name || 'packagehandler';
     return createUserSession(
         (user as LoginResponse).user.id,
         (user as LoginResponse).access_token,
-        (user as LoginResponse).user.roles[0].role.name,
+        roleName,
         redirectTo,
     )
 }

@@ -72,10 +72,15 @@ export const action: ActionFunction = async ({ request }) => {
             formError: 'Something is wrong! Please try again.',
         })
     }
+    // Find the merchant role from the roles array
+    const merchantRole = (user as LoginResponse).user.roles.find(
+        (r) => r.role.name === 'merchant',
+    );
+    const roleName = merchantRole?.role.name || 'merchant';
     return createUserSession(
         (user as LoginResponse).user.id,
         (user as LoginResponse).access_token,
-        (user as LoginResponse).user.roles[0].role.name,
+        roleName,
         redirectTo,
     )
 }

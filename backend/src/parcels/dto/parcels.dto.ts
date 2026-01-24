@@ -63,4 +63,7 @@ export class UpdateParcelDto implements Prisma.ParcelUpdateInput {
   @IsOptional()
   @IsString({ message: "'customerAddress' must be a string" })
   customerAddress: string;
+  @IsOptional()
+  @IsNumber({}, { message: "'parcelStatusId' must be a number" })
+  parcelStatusId: number;
 }

@@ -35,6 +35,9 @@ export const addParcel = async (
         if (!shopsId) return null
 
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const createParcelRes = await axios.post(
             '/parcels',
             {
@@ -76,6 +79,9 @@ export const getParcels = async (
 ): Promise<Parcels | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const parcelsRes = await axios.get(
             '/parcels?pickup=true&shop=true&deliveryArea=true',
             {
@@ -99,6 +105,9 @@ export const getParcelPricing = async (
 ): Promise<ParcelPrices | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const parcelPricingRes = await axios.get('/parcels/pricing', {
             headers: {
                 Authorization: `Bearer ${access_token}`,
@@ -121,6 +130,9 @@ export const getParcelTimelineByParcelNumber = async (
 ): Promise<ParcelTimeline | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const parcelTimelineRes = await axios.get(
             `/parcel-timeline/${parcelNumber}`,
             {
@@ -146,6 +158,9 @@ export const cancelParcelByParcelNumber = async (
 ): Promise<Parcel | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const cancelParcelRes = await axios.delete(`/parcels/${parcelNumber}`, {
             headers: {
                 Authorization: `Bearer ${access_token}`,

@@ -34,6 +34,14 @@ export class FiledPackageHandlersController {
     @Query('areaId') areaId?: number,
     @Query('roleName') roleName?: string,
   ) {
+    // Map frontend role names to backend role names
+    const roleMapping: { [key: string]: string[] } = {
+      deliveryman: ['deliveryman', 'rider'],
+      pickupman: ['pickupman', 'rider'],
+    };
+
+    const rolesFilter = roleName && roleMapping[roleName] ? roleMapping[roleName] : [roleName];
+
     const data = await this.filedPackageHandlersService.fieldPackageHandlers(
       {
         where: {
@@ -41,17 +49,19 @@ export class FiledPackageHandlersController {
             {
               areaId: areaId ? Number(areaId) : undefined,
             },
-            {
+            roleName ? {
               User: {
                 roles: {
-                  every: {
+                  some: {
                     role: {
-                      name: roleName,
+                      name: {
+                        in: rolesFilter,
+                      },
                     },
                   },
                 },
               },
-            },
+            } : {},
           ],
         },
       },

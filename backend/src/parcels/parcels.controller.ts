@@ -194,19 +194,27 @@ export class ParcelsController {
     @Request() req,
     @Body(ValidationPipe) createParcelDto: CreateParcelDto,
   ) {
-    // extract input data
-    const {
-      parcelProductCategoriesId,
-      shopsId,
-      parcelPickUpId,
-      parcelStatusId,
-      parcelDeliveryAreaId,
-      ...restBody
-    } = createParcelDto;
-    // extract user id from request
-    const parcelUserId = req.user.id;
-    // create parcel
-    const newParcel = await this.parcelsService.createParcel({
+    try {
+      // extract input data
+      const {
+        parcelProductCategoriesId,
+        shopsId,
+        parcelPickUpId,
+        parcelStatusId,
+        parcelDeliveryAreaId,
+        ...restBody
+      } = createParcelDto;
+      // extract user id from request
+      const parcelUserId = req.user.id;
+
+      // Validate parcelStatusId exists
+      const parcelStatus = await this.parcelsService.getParcelStatus(parcelStatusId);
+      if (!parcelStatus) {
+        throw new BadRequestException(`Invalid parcelStatusId: ${parcelStatusId}`);
+      }
+
+      // create parcel
+      const newParcel = await this.parcelsService.createParcel({
       ...restBody,
       parcelProductCategory: {
         connect: {
@@ -246,9 +254,12 @@ export class ParcelsController {
       },
     });
 
-    return {
-      data: newParcel,
-    };
+      return {
+        data: newParcel,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   // PATCH /parcels/1
@@ -261,11 +272,30 @@ export class ParcelsController {
     @Body(ValidationPipe) updateParcelDto: UpdateParcelDto,
   ) {
     try {
+      // Validate parcelStatusId if being updated
+      if (updateParcelDto.parcelStatusId) {
+        const parcelStatus = await this.parcelsService.getParcelStatus(updateParcelDto.parcelStatusId);
+        if (!parcelStatus) {
+          throw new BadRequestException(`Invalid parcelStatusId: ${updateParcelDto.parcelStatusId}`);
+        }
+      }
+
+      // Transform the DTO to match Prisma update input
+      const data: any = { ...updateParcelDto };
+      if (updateParcelDto.parcelStatusId) {
+        data.parcelStatus = {
+          connect: {
+            id: updateParcelDto.parcelStatusId,
+          },
+        };
+        delete data.parcelStatusId;
+      }
+
       const updatedParcel = await this.parcelsService.updateParcel({
         where: {
           parcelNumber,
         },
-        data: updateParcelDto,
+        data,
       });
       return updatedParcel;
     } catch (error) {
@@ -349,6 +379,20 @@ export class ParcelsController {
         handlerType === 'deliveryman'
           ? `Delivery Agent ${handlerInfo?.User?.name}(${handlerInfo?.User?.phone}) is out for delivery`
           : 'Parcel assigned to a pickupman';
+
+      // Get the appropriate status by name
+      const statusName =
+        handlerType === 'deliveryman'
+          ? 'in_transit'
+          : handlerType === 'pickupman'
+          ? 'picked_up'
+          : 'pending';
+      
+      const parcelStatus = await this.parcelsService.getParcelStatusByName(statusName);
+      if (!parcelStatus) {
+        throw new BadRequestException(`Status "${statusName}" not found in database`);
+      }
+
       const result = await this.parcelsService.updateParcel({
         where: {
           parcelNumber,
@@ -362,26 +406,12 @@ export class ParcelsController {
           ParcelTimeline: {
             create: {
               message,
-              parcelStatus: {
-                connect: {
-                  name:
-                    handlerType === 'deliveryman'
-                      ? 'in-transit'
-                      : handlerType === 'pickupman'
-                      ? 'picking-up'
-                      : 'pending',
-                },
-              },
+              parcelStatusId: parcelStatus.id,
             },
           },
           parcelStatus: {
             connect: {
-              name:
-                handlerType === 'deliveryman'
-                  ? 'in-transit'
-                  : handlerType === 'pickupman'
-                  ? 'picking-up'
-                  : 'pending',
+              id: parcelStatus.id,
             },
           },
         },
@@ -399,6 +429,12 @@ export class ParcelsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   async receiveParcel(@Param('parcelNumber') parcelNumber: string) {
     try {
+      // Get the 'pending' status
+      const pendingStatus = await this.parcelsService.getParcelStatusByName('pending');
+      if (!pendingStatus) {
+        throw new BadRequestException('Status "pending" not found in database');
+      }
+
       const result = await this.parcelsService.updateParcel({
         where: {
           parcelNumber,
@@ -407,16 +443,12 @@ export class ParcelsController {
           ParcelTimeline: {
             create: {
               message: 'Parcel has been received by us. We are processing it.',
-              parcelStatus: {
-                connect: {
-                  name: 'processing',
-                },
-              },
+              parcelStatusId: pendingStatus.id,
             },
           },
           parcelStatus: {
             connect: {
-              name: 'processing',
+              id: pendingStatus.id,
             },
           },
           FieldPackageHandler: {
@@ -459,7 +491,7 @@ export class ParcelsController {
               },
               {
                 parcelStatus: {
-                  name: 'picking-up',
+                  name: 'picked_up',
                 },
               },
             ],
@@ -521,7 +553,7 @@ export class ParcelsController {
               },
               {
                 parcelStatus: {
-                  name: 'in-transit',
+                  name: 'in_transit',
                 },
               },
             ],
@@ -563,6 +595,12 @@ export class ParcelsController {
     @Param('parcelNumber') parcelNumber: string,
   ) {
     try {
+      // Get the 'delivered' status
+      const deliveredStatus = await this.parcelsService.getParcelStatusByName('delivered');
+      if (!deliveredStatus) {
+        throw new BadRequestException('Status "delivered" not found in database');
+      }
+
       const result = await this.parcelsService.updateParcel({
         where: {
           parcelNumber,
@@ -572,16 +610,12 @@ export class ParcelsController {
             create: {
               message:
                 'Parcel has been delivered. Thank you for using our service.',
-              parcelStatus: {
-                connect: {
-                  name: 'delivered',
-                },
-              },
+              parcelStatusId: deliveredStatus.id,
             },
           },
           parcelStatus: {
             connect: {
-              name: 'delivered',
+              id: deliveredStatus.id,
             },
           },
           FieldPackageHandler: {

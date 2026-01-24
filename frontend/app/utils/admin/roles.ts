@@ -9,6 +9,9 @@ export const getUserRoles = async (
 ): Promise<{ data: UserRole[] } | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const userRolesRes = await axios.get('/roles', {
             headers: {
                 Authorization: `Bearer ${access_token}`,

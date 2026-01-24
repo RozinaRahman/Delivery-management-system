@@ -9,6 +9,9 @@ export const getMerchantByAdmin = async (
 ): Promise<User[] | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const res = await axios.get('/users/merchant', {
             headers: {
                 Authorization: `Bearer ${access_token}`,

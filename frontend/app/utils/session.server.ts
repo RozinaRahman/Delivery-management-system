@@ -184,9 +184,18 @@ export async function getUserToken(request: Request) {
     const session = await getUserSession(request)
     const access_token = session.get(tokenName)
     if (!access_token || typeof access_token !== 'string')
-        return logout(request)
+        return null
     return access_token
 }
+
+export async function getUserTokenSafe(request: Request) {
+    const session = await getUserSession(request)
+    const access_token = session.get(tokenName)
+    if (!access_token || typeof access_token !== 'string')
+        return null
+    return access_token
+}
+
 export async function requireUserId(
     request: Request,
     redirectTo: string = new URL(request.url).pathname,
@@ -211,7 +220,10 @@ export async function requireAdminUserId(
     const session = await getUserSession(request)
     const userId = session.get('userId')
     const role = session.get('role')
-    if (!userId || typeof userId !== 'number' || role !== 'admin') {
+    console.log('Checking admin auth - userId:', userId, 'role:', role, 'type:', typeof role, 'redirectTo:', redirectTo)
+    const isAdmin = userId && typeof userId === 'number' && (role === 'admin' || role?.trim() === 'admin')
+    if (!isAdmin) {
+        console.log('Admin check failed - userId valid:', !!userId, 'userId is number:', typeof userId === 'number', 'role matches:', role === 'admin')
         const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
         throw redirect(`/admin/login?${searchParams}`)
     }
@@ -251,7 +263,8 @@ export async function getUser(request: Request) {
         })
         return user
     } catch {
-        throw logout(request)
+        // Return null instead of throwing logout to prevent aggressive auto-logout
+        return null
     }
 }
 
@@ -274,7 +287,7 @@ export async function createUserSession(
     session.set('userId', userId)
     session.set(tokenName, access_token)
     session.set('role', role)
-    // console.log("session ", session)
+    console.log('Creating session with role:', role, 'userId:', userId, 'redirectTo:', redirectTo)
     return redirect(redirectTo, {
         headers: {
             'Set-Cookie': await storage.commitSession(session),

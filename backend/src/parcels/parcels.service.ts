@@ -86,4 +86,18 @@ export class ParcelsService {
       ...options,
     });
   }
+
+  // Get parcel status by ID
+  async getParcelStatus(id: number) {
+    return this.prisma.parcelStatus.findUnique({
+      where: { id },
+    });
+  }
+
+  // Get parcel status by name
+  async getParcelStatusByName(name: string) {
+    return this.prisma.parcelStatus.findUnique({
+      where: { name },
+    });
+  }
 }

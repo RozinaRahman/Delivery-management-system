@@ -15,6 +15,9 @@ export const getParcelsForAdmin = async (
 ): Promise<Parcels | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const parcelsRes = await axios.get(
             '/parcels/all?shop=true&deliveryArea=true&pickup=true',
             {
@@ -40,6 +43,9 @@ export const getParcelsForAdminByParcelNumber = async (
 ): Promise<Parcel | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const response = await axios.get(
             `/parcels/${parcelNumber}?deliveryArea=true&pickup=true`,
             {
@@ -66,6 +72,9 @@ export const updateParcelForAdminByParcelNumber = async (
 ): Promise<Parcel | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const response = await axios.patch(`/parcels/${parcelNumber}`, data, {
             headers: {
                 Authorization: `Bearer ${access_token}`,
@@ -89,6 +98,9 @@ export const assignFieldPackageHandlerToParcel = async (
     const { parcelNumber, handlerType, handlerId } = data
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const response = await axios.patch(
             `/parcels?parcelNumber=${parcelNumber}&handlerType=${handlerType}&handlerId=${handlerId}`,
             data,
@@ -115,6 +127,9 @@ export const receiveParcelByAdmin = async (
 ): Promise<Parcel | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const response = await axios.patch(
             `/parcels/admin/receive/${parcelNumber}`,
             {},

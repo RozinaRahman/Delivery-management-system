@@ -14,6 +14,9 @@ export const getFieldPackageHandlers = async (
 ): Promise<FieldPackageHandlers | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const packageHandlersRes = await axios.get('/filed-package-handlers', {
             headers: {
                 Authorization: `Bearer ${access_token}`,
@@ -36,6 +39,9 @@ export const getFieldPackageHandlerById = async (
 ): Promise<FieldPackageHandler | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const response = await axios.get(`/filed-package-handlers/${id}`, {
             headers: {
                 Authorization: `Bearer ${access_token}`,
@@ -66,6 +72,9 @@ export const addFieldPackageHandler = async (
 ): Promise<FieldPackageHandlers | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const createRes = await axios.post(
             '/filed-package-handlers',
             {
@@ -109,6 +118,9 @@ export const updateFieldPackageHandler = async (
 ): Promise<FieldPackageHandlers | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const response = await axios.patch(
             `/filed-package-handlers/${id}`,
             {

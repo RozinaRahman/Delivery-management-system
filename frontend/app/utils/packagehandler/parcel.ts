@@ -9,6 +9,9 @@ export const getParcelsToPickUp = async (
 ): Promise<Parcels | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const parcelsRes = await axios.get(
             '/parcels/packagehandler/to-pickup?shop=true&deliveryArea=true&pickup=true&parcelUser=true',
             {
@@ -33,6 +36,9 @@ export const getParcelsToDelivery = async (
 ): Promise<Parcels | ApiErrorResponse | null> => {
     try {
         const access_token = await getUserToken(request)
+        if (!access_token) {
+            return { message: 'Not authenticated' } as ApiErrorResponse
+        }
         const parcelsRes = await axios.get(
             '/parcels/packagehandler/to-deliver?shop=true&deliveryArea=true&pickup=true&parcelUser=true',
             {
