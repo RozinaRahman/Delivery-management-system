@@ -139,7 +139,7 @@ function ShopList() {
     )
 }
 
-export function PaymentsTableTr({ payment }: { payment: any }) {
+export function PaymentsTableTr({ payment }: { payment: Record<string, any> }) {
     return (
         <Tr>
             <Td>{payment.invoiseId}</Td>

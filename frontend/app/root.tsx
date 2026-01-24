@@ -81,7 +81,7 @@ const Document = withEmotionCache(
             })
             // reset cache to reapply global styles
             clientStyleData?.reset()
-        }, [clientStyleData])
+        }, [])
 
         return (
             <html lang="en">

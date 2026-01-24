@@ -61,7 +61,6 @@ function ShopProvider({ ...props }: { children: React.ReactNode }) {
             setActiveShop(lsShopData)
             storeActiveShopCookie(lsShopData)
         }
-        console.log('Run useEffect in ShopProvider storeActiveShop')
     }, [])
 
     const resetShopProvider = () => {
