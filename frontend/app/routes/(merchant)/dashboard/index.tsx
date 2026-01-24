@@ -168,7 +168,7 @@ function Dashboard() {
                     <Text>
                         Call us{' '}
                         <Text as="span" fontWeight="bold" color="primary.500">
-                            01234567891{' '}
+                            +880 1234 567890{' '}
                         </Text>
                         | any question?{' '}
                         <Link

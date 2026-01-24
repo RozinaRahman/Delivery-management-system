@@ -113,11 +113,11 @@ export default function Navbar() {
                                         />{' '}
                                         <Text as="span">CALL US</Text>
                                         <Link
-                                            href="tel:09610007339"
+                                            href="tel:+8801234567890"
                                             color="primary.500"
                                             fontWeight="bold"
                                         >
-                                            09610007339
+                                            +880 1234 567890
                                         </Link>
                                     </Flex>
                                     <Button
