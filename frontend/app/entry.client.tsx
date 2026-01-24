@@ -1,6 +1,6 @@
 import { CacheProvider } from '@emotion/react'
 import { RemixBrowser } from '@remix-run/react'
-import { startTransition, StrictMode, useState } from 'react'
+import { startTransition, useState } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 
 import { ClientStyleContext } from './context'
@@ -28,11 +28,9 @@ function hydrate() {
     startTransition(() => {
         hydrateRoot(
             document,
-            <StrictMode>
-                <ClientCacheProvider>
-                    <RemixBrowser />
-                </ClientCacheProvider>
-            </StrictMode>,
+            <ClientCacheProvider>
+                <RemixBrowser />
+            </ClientCacheProvider>,
         )
     })
 }
