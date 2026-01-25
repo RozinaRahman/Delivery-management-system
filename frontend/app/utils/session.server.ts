@@ -220,10 +220,8 @@ export async function requireAdminUserId(
     const session = await getUserSession(request)
     const userId = session.get('userId')
     const role = session.get('role')
-    console.log('Checking admin auth - userId:', userId, 'role:', role, 'type:', typeof role, 'redirectTo:', redirectTo)
     const isAdmin = userId && typeof userId === 'number' && (role === 'admin' || role?.trim() === 'admin')
     if (!isAdmin) {
-        console.log('Admin check failed - userId valid:', !!userId, 'userId is number:', typeof userId === 'number', 'role matches:', role === 'admin')
         const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
         throw redirect(`/admin/login?${searchParams}`)
     }
@@ -287,7 +285,6 @@ export async function createUserSession(
     session.set('userId', userId)
     session.set(tokenName, access_token)
     session.set('role', role)
-    console.log('Creating session with role:', role, 'userId:', userId, 'redirectTo:', redirectTo)
     return redirect(redirectTo, {
         headers: {
             'Set-Cookie': await storage.commitSession(session),

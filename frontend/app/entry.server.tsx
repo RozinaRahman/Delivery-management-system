@@ -52,7 +52,7 @@ export default function handleRequest(
                     responseStatusCode = 500
                     // Log streaming rendering errors from inside the shell
                     if (shellRendered) {
-                        console.error(error)
+                        console.error('Error rendering:', error)
                     }
                 },
             },
