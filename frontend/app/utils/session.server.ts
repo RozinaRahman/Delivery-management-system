@@ -209,6 +209,11 @@ export async function requireUserId(
         const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
         throw redirect(`/login?${searchParams}`)
     }
+    // Check if token is valid
+    const user = await getUser(request)
+    if (!user) {
+        throw logout(request)
+    }
     return userId
 }
 
@@ -224,6 +229,11 @@ export async function requireAdminUserId(
     if (!isAdmin) {
         const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
         throw redirect(`/admin/login?${searchParams}`)
+    }
+    // Check if token is valid
+    const user = await getUser(request)
+    if (!user) {
+        throw logout(request)
     }
     return userId
 }
@@ -244,6 +254,11 @@ export async function requirePackageHandlerUserId(
         const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
         throw redirect(`/packagehandler/login?${searchParams}`)
     }
+    // Check if token is valid
+    const user = await getUser(request)
+    if (!user) {
+        throw logout(request)
+    }
     return userId
 }
 
@@ -260,8 +275,11 @@ export async function getUser(request: Request) {
             },
         })
         return user
-    } catch {
-        // Return null instead of throwing logout to prevent aggressive auto-logout
+    } catch (error) {
+        if (error instanceof AxiosError && error.response?.status === 401) {
+            throw logout(request)
+        }
+        // Return null for other errors to prevent aggressive auto-logout
         return null
     }
 }
